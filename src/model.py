@@ -11,5 +11,19 @@ class FullModel:
 
         pass
 
+    def build_graph(self):
 
+        pass
+        
+    def train(self,epochs):
+
+        pass
+
+    def get_loss(self):
+
+        pass
+
+    
+    
+    
     
