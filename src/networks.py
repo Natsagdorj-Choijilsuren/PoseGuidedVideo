@@ -5,6 +5,8 @@ from torchvision import Variable
 from torch.autograd import Variable
 from functools import partial
 
+
+
 class PoseSeqGen(nn.Module):
     """
     Pose Sequence Generator class
@@ -16,15 +18,16 @@ class PoseSeqGen(nn.Module):
         return nn.Sequential(
             nn.Conv2d(ch_in,ch_out,kernel_size,stride,padding),
             nn.InstanceNorm2d(ch_out),
-            nn.ReLU()
+            nn.ReLU(True)
             
         )
 
-    def res_block(self):
+    def res_block(self,ch_in,ch_out,kernel_size=4,stride=2,padding=1):
 
         return nn.Sequential(
-            nn.Conv2d(),
-            nn.InstanceNorm2d(),
+            nn.Conv2d(ch_in,ch_out,kernel_size=kernel_size,stride=stride,
+                      padding=padding),
+            nn.InstanceNorm2d(ch_out),
             nn.ReLU()
         )
 
@@ -37,7 +40,7 @@ class PoseSeqGen(nn.Module):
             nn.ReLU()
         )
     
-    def __init__(self):
+    def __init__(self,input_nc,ngf,res_number,):
 
         super(PoseSeqGen,self).__init__()
 
@@ -73,9 +76,6 @@ class PoseSeqGen(nn.Module):
         output = self.dec1(output)
         output = self.dec2(output)
         
-        
-        
-
 
         return output
         
@@ -83,7 +83,7 @@ class PoseSeqGen(nn.Module):
 
 class PoseSeqDisc(nn.Module):
 
-    def block(self,ch_in,ch_out,kernel_size,stride,padding):
+    def conv_block(self,ch_in,ch_out,kernel_size,stride,padding):
 
         return nn.Sequential(
             nn.Conv2d(ch_in,ch_out,kernel_size,stride,padding),
@@ -94,10 +94,10 @@ class PoseSeqDisc(nn.Module):
     
     def __init__(self):
 
-        self.conv1 = self.block()
-        self.conv2 = self.block()
-        self.conv3 = self.block()
-        
+        self.conv1 = self.conv_block()
+        self.conv2 = self.conv_block()
+        self.conv3 = self.conv_block()
+        self.conv4 = self.conv_block()
 
     def __forward__(self,x):
 
@@ -105,7 +105,10 @@ class PoseSeqDisc(nn.Module):
         output = self.conv1(output)
         output = self.conv2(output)
         
+        output = self.conv3(output)
+        output = self.conv4(output)
         
+        return output
 
 
 
@@ -129,7 +132,7 @@ class PoseImgDisc(nn.Module):
         
         
 
-    def __forward__(self,x):
+    def forward(self,x):
 
         output = x
         output = self.conv1(output)
@@ -140,7 +143,7 @@ class GANLoss(nn.Module):
     def __init__(self):
 
         pass
-    def __forward__(self):
+    def forward(self):
         pass
 
     
@@ -154,7 +157,7 @@ class GRU_l(nn.Module):
         self.linear = nn.Linear(hidden_size,output_size)
 
         
-    def __forward__(self,input_,hidden):
+    def forward(self,input_,hidden):
 
         _,hidden = self.gru(input_,hidden)
         
